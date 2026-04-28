@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="108px" height="108px" viewBox="0 0 108 108" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 2</title>
+    <defs>
+        <polygon id="path-1" points="0.000131985258 0.0666 42.092829 0.0666 42.092829 44.5615039 0.000131985258 44.5615039"></polygon>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#FFE800" offset="0%"></stop>
+            <stop stop-color="#FFCC00" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-4">
+            <stop stop-color="#FFE800" offset="0%"></stop>
+            <stop stop-color="#FFCC00" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="私聊页" transform="translate(-40.000000, -338.000000)">
+            <g id="编组-2" transform="translate(40.000000, 338.000000)">
+                <circle id="椭圆形" fill="#3B3B3B" cx="54" cy="54" r="54"></circle>
+                <g id="编组" transform="translate(37.000000, 31.000000)">
+                    <g transform="translate(0.000000, 0.833670)">
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <g id="Clip-2"></g>
+                        <path d="M36.43479,24.60033 C35.58789,24.49863 34.90749,23.89653 34.62309,23.09283 C34.62039,23.08743 34.61859,23.08203 34.61679,23.07753 L31.38309,13.98483 C28.94679,7.13493 22.28859,2.94093 15.36309,3.26853 C15.35229,3.23613 15.35049,3.20373 15.33969,3.17133 C14.47569,0.74223 11.80449,-0.52677 9.37539,0.33813 C6.94539,1.20213 5.67639,3.87243 6.54039,6.30153 C6.55209,6.33393 6.57099,6.36003 6.58269,6.39153 C1.00719,10.51173 -1.50651,17.96823 0.92979,24.81723 L4.16439,33.90993 C4.16619,33.91533 4.16799,33.92073 4.16979,33.92523 C4.45779,34.72893 4.31019,35.62443 3.71709,36.23913 C1.99809,38.01933 1.32219,40.68963 2.21589,43.16733 C2.61189,44.26533 3.83499,44.82873 4.93479,44.43723 L40.66839,31.72563 C41.76819,31.33503 42.36129,30.12543 41.97429,29.02473 C41.10309,26.53893 38.89179,24.89553 36.43479,24.60033" id="Fill-1" fill="url(#linearGradient-3)" mask="url(#mask-2)"></path>
+                    </g>
+                    <path d="M21.02049,47.33523 C23.69349,46.38483 25.08939,43.44723 24.13809,40.77423 L14.45949,44.21763 C15.41079,46.88973 18.34749,48.28563 21.02049,47.33523" id="Fill-3" fill="url(#linearGradient-4)"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

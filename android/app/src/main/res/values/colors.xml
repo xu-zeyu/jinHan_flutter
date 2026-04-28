@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="launch_background">#e69e3a</color>
+    <color name="app_primary">#e69e3a</color>
+    <color name="app_secondary">#F0B88A</color>
+</resources>
