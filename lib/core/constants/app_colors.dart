@@ -10,8 +10,11 @@ class AppColors {
   /// 强调色 - 用于特殊强调、标签、徽章等
   static const accent = Color(0xFF7D9B76);
 
-  /// 页面背景色 - 用于整个应用页面的背景
-  static const background = Color(0xFFF8F1EA);
+  /// 页面背景色 - 用于整个应用页面的背景（主题色）
+  static const background = Color(0xffe69e3a);
+
+  /// 内容背景色 - 用于热门宠物、瀑布流等内容区域背景
+  static const contentBackground = Color(0xFFF5F5F5);
 
   /// 表面色 - 用于卡片、弹窗等容器的背景
   static const surface = Colors.white;

@@ -10,7 +10,6 @@
   - `lib/pages/root_page/root_page.dart`: 底部 Tab 容器与首页骨架
 - 支持平台:
   - Flutter: `android/`, `ios/`, `macos/`, `linux/`, `windows/`, `web/`
-  - 额外目录: `harmony/`，为 Harmony 侧页面/组件代码，不属于 Flutter `lib/` 运行时
 
 ## 关键技术栈
 
@@ -19,7 +18,7 @@
   - `flutter_riverpod`
   - `provider`
 - 路由:
-  - 已声明 `go_router` 依赖，但当前入口仍是 `MaterialApp(home: ...)`
+  -  `go_router`
 - 网络:
   - `dio`
   - `lib/core/services/request.dart` 中有基础请求封装
@@ -40,7 +39,8 @@
   - `constants/`: 颜色、间距、文案等常量
   - `theme/`: 主题定义
   - `services/`: 服务层，当前包含请求封装
-  - `api/`, `router/`, `utils/`: 预留或扩展目录
+  - `api/`: 接口访问层，页面对应 repository、api client、response parser 优先放这里
+  - `router/`, `utils/`: 路由与工具能力
 - `lib/pages/`: 页面级模块
   - `home/`
   - `category/`
@@ -48,7 +48,7 @@
   - `my/`
   - `root_page/`: 主容器、底部导航、帧动画
 - `lib/shared/`: 跨页面复用模型与组件
-  - `models/`
+  - `models/`: 业务模型、DTO、分页对象、接口返回模型
   - `widgets/`
 - `assets/`: 静态资源
   - `images/`: 包含普通图片与四个 Tab 的逐帧动画素材
@@ -56,7 +56,6 @@
   - `json/`
 - `l10n/`: 国际化文案
 - `test/`: Flutter 测试，当前已有基础 widget test
-- `harmony/`: Harmony 侧页面与组件，不要把该目录当作 Dart 代码处理
 
 
 ## 配置与资源约定
@@ -72,33 +71,40 @@
   - `assets/icons/`
   - `assets/json/`
 - 若新增资源，先确认路径已在 `pubspec.yaml` 注册，再在代码中引用
-- `RequestManager` 当前将 `baseUrl` 写死为 `https://api.example.com/`，如果接入真实环境，优先改为读取 `.env.dev` / `.env.prod`
 
 ## 代码协作约定
-
 - 优先在现有分层内扩展:
   - 页面逻辑放 `lib/pages/...`
   - 通用 UI 放 `lib/shared/widgets`
   - 常量放 `lib/core/constants`
   - 服务/网络能力放 `lib/core/services` 或 `lib/core/api`
+- 新增接口相关代码的放置约定:
+  - 页面或业务对应的 repository 放 `lib/core/api/`
+  - 通用请求封装、拦截器、鉴权、环境配置放 `lib/core/services/` 或 `lib/core/api/interceptors/`
+  - 不要把 `repository` 直接放在 `lib/pages/...`
+- 新增 model 的放置约定:
+  - 可跨页面复用的业务模型、分页模型、接口 DTO 放 `lib/shared/models/`
+  - 页面私有的临时 view model 放 `lib/core/models/`
+- 生成代码文件的放置约定:
+  - 接口生成代码、client、service、repository 生成产物放在 `lib/core/api/` 对应子目录
+  - `json_serializable` / `freezed` 生成的 `*.g.dart`、`*.freezed.dart` 与源文件同目录
+  - OpenAPI 或 Swagger 生成文件不要散落到 `lib/pages/`
 - 保持现有命名风格:
   - 页面文件使用 `*_page.dart`
   - 主题/常量文件使用 `app_*` 前缀
+  - repository 文件使用 `*_repository.dart`
+  - model 文件使用 `*_model.dart` 或 `*_models.dart`
 - 修改 UI 时，优先复用 `AppColors`、`AppTheme`、`AppSpacing`，避免页面内散落魔法值
 - 若引入状态管理新代码，优先明确选择一种模式；仓库中同时存在 `provider` 与 `flutter_riverpod` 依赖，新增代码不要混用得更重
 - 若引入路由体系，需先确认是否正式迁移到 `go_router`，避免 `home:` 和集中式路由长期并存
 
 ## 修改前后的检查项
-
-- Dart/Flutter 代码修改后至少执行:
+- 代码修改后不执行:
   - `flutter analyze`
   - `flutter test`
 - 影响资源加载时，检查:
   - `pubspec.yaml` 资源声明是否完整
   - 资源路径大小写是否与实际文件一致
-- 影响底部导航或帧动画时，重点检查:
-  - `lib/pages/root_page/root_page.dart`
-  - `assets/images/*_frames/` 是否完整包含连续帧
 - 涉及国际化文案时，同步更新 `l10n/app_zh.arb` 和 `l10n/app_en.arb`
 
 ## 不建议直接改动的内容
@@ -113,4 +119,4 @@
 - 先从 `lib/app.dart` 和 `lib/pages/root_page/root_page.dart` 建立应用入口认知，再深入具体页面
 - 若任务涉及接口联调，先梳理 `RequestManager`，再决定是否补充拦截器、错误处理、鉴权和环境切换
 - 若任务涉及结构性重构，先确认 `provider` / `riverpod` / `go_router` 的最终选型，再动主干
-- 编写完代码后不经行项目构建和检测
+- 编写完代码后不进行项目构建和检测

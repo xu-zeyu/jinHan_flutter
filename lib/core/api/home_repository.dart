@@ -1,5 +1,5 @@
 import '../../core/services/request.dart';
-import 'home_models.dart';
+import '../../shared/models/home_models.dart';
 
 class HomeRepository {
   HomeRepository({RequestManager? requestManager})
