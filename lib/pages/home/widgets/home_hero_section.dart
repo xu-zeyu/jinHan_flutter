@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../../../shared/models/home_models.dart';
 import 'home_image_widgets.dart';
 
@@ -102,7 +103,7 @@ class _HomeHeroSectionLayoutDelegate extends MultiChildLayoutDelegate {
     final availableWidth = width - horizontalPadding - contentPadding;
     final canRenderGrid = availableWidth > itemSpacing;
     final crossAxisCount = canRenderGrid ? 4 : 1;
-    final itemHeight = imageHeight + labelSpacing + labelHeight;
+    const itemHeight = imageHeight + labelSpacing + labelHeight;
     final rowCount =
         crossAxisCount <= 0 ? 0 : (varietyCount / crossAxisCount).ceil();
 
@@ -137,8 +138,8 @@ class _BannerSwiper extends StatelessWidget {
         width: double.infinity,
         height: 180 + navBarHeight,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(18),
         ),
       );
     }
@@ -157,7 +158,7 @@ class _BannerSwiper extends StatelessWidget {
           return HomeRemoteImage(
             imageUrl: banners[index].imageUrl,
             fit: BoxFit.cover,
-            placeholderColor: Colors.white.withValues(alpha: 0.5),
+            placeholderColor: AppColors.cardTint,
           );
         },
       ),
@@ -184,10 +185,17 @@ class _HotVarietyGrid extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           decoration: BoxDecoration(
             borderRadius: borderRadius,
-            color: const Color.fromRGBO(255, 255, 255, 0.56),
+            color: AppColors.surface.withValues(alpha: 0.88),
             border: Border.all(
-              color: const Color.fromRGBO(255, 255, 255, 0.45),
+              color: AppColors.border.withValues(alpha: 0.84),
             ),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 20,
+                offset: Offset(0, 10),
+              ),
+            ],
           ),
           child: Column(
             children: [
@@ -195,12 +203,21 @@ class _HotVarietyGrid extends StatelessWidget {
                 height: 24,
                 child: Row(
                   children: [
+                    Container(
+                      width: 4,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     const Text(
                       '热门宠物',
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A1A),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const Spacer(),
@@ -210,7 +227,7 @@ class _HotVarietyGrid extends StatelessWidget {
                           '查看更多',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF999999),
+                            color: AppColors.accent,
                           ),
                         ),
                         const SizedBox(width: 2),
@@ -219,7 +236,7 @@ class _HotVarietyGrid extends StatelessWidget {
                           width: 16,
                           height: 16,
                           colorFilter: const ColorFilter.mode(
-                            Color(0xFF999999),
+                            AppColors.accent,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -242,15 +259,29 @@ class _HotVarietyGrid extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: SizedBox(
-                                  width: 58,
-                                  height: 58,
-                                  child: HomeRemoteImage(
-                                    imageUrl: item.iconUrl,
-                                    fit: BoxFit.cover,
-                                    placeholderColor: const Color(0xFFF7F2ED),
+                              Container(
+                                width: 66,
+                                height: 66,
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceMuted,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: AppColors.border.withValues(
+                                      alpha: 0.72,
+                                    ),
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: SizedBox(
+                                    width: 58,
+                                    height: 58,
+                                    child: HomeRemoteImage(
+                                      imageUrl: item.iconUrl,
+                                      fit: BoxFit.cover,
+                                      placeholderColor: AppColors.cardTint,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -263,7 +294,7 @@ class _HotVarietyGrid extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF333333),
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],

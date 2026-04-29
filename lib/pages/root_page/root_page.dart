@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../home/home_page.dart';
-import '../category/category_page.dart';
-import '../cart/cart_page.dart';
+import '../business/business_page.dart';
+import '../message/message_page.dart';
 import '../my/my_page.dart';
 import 'frames_animation.dart';
 
@@ -18,15 +18,15 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   final List<Widget> pageList = const [
     HomePage(),
-    CategoryPage(),
-    CartPage(),
+    BusinessPage(),
+    MessagePage(),
     MyPage(),
   ];
 
   List<GlobalKey<FramesAnimationState>> framesKeys = [
     GlobalKey<FramesAnimationState>(debugLabel: 'home_key'),
-    GlobalKey<FramesAnimationState>(debugLabel: 'category_key'),
-    GlobalKey<FramesAnimationState>(debugLabel: 'cart_key'),
+    GlobalKey<FramesAnimationState>(debugLabel: 'business_key'),
+    GlobalKey<FramesAnimationState>(debugLabel: 'message_key'),
     GlobalKey<FramesAnimationState>(debugLabel: 'mine_key'),
   ];
 
@@ -37,9 +37,10 @@ class _RootPageState extends State<RootPage> {
     List<Image> imageList = [];
     for (var i = 0; i < 24; i++) {
       imageList.add(Image.asset(
-        'assets/images/${type}_frames/${type}_frame_${i}.png',
-        width: 21.0,
-        height: 21.0,
+        'assets/images/${type}_frames/${type}_frame_$i.png',
+        width: 27.0,
+        height: 27.0,
+        fit: BoxFit.fill,
         gaplessPlayback: true,
       ));
     }
@@ -63,20 +64,20 @@ class _RootPageState extends State<RootPage> {
           filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: AppColors.surface.withValues(alpha: 0.94),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
               ),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColors.border.withValues(alpha: 0.84),
                 width: 0.8,
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: AppColors.textPrimary.withValues(alpha: 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, -6),
+                  color: AppColors.shadow,
+                  blurRadius: 28,
+                  offset: Offset(0, -10),
                 ),
               ],
             ),
@@ -90,9 +91,13 @@ class _RootPageState extends State<RootPage> {
                 backgroundColor: Colors.transparent,
                 selectedFontSize: 11.0,
                 unselectedFontSize: 11.0,
-                selectedItemColor: AppColors.primary,
-                unselectedItemColor: AppColors.textPrimary.withValues(
-                  alpha: 0.72,
+                selectedItemColor: AppColors.accent,
+                unselectedItemColor: AppColors.textSecondary,
+                selectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500,
                 ),
                 currentIndex: _currentIndex,
                 type: BottomNavigationBarType.fixed,
@@ -118,17 +123,17 @@ class _RootPageState extends State<RootPage> {
                     icon: FramesAnimation(
                       key: framesKeys[1],
                       initIndex: 1,
-                      images: _loadImages('category'),
+                      images: _loadImages('business'),
                     ),
-                    label: '分类',
+                    label: '商家',
                   ),
                   BottomNavigationBarItem(
                     icon: FramesAnimation(
                       key: framesKeys[2],
                       initIndex: 2,
-                      images: _loadImages('cart'),
+                      images: _loadImages('message'),
                     ),
-                    label: '购物车',
+                    label: '信息',
                   ),
                   BottomNavigationBarItem(
                     icon: FramesAnimation(

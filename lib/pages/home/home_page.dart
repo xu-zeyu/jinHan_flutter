@@ -6,7 +6,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/api/home_repository.dart';
 import '../../shared/models/home_models.dart';
-import 'widgets/home_hero_section.dart';
+import 'widgets/home_hero_section.dart' hide SizedBox;
 import 'widgets/home_product_widgets.dart';
 import 'widgets/home_refresh_widgets.dart';
 import 'widgets/home_search_bar.dart';
@@ -314,6 +314,9 @@ class _HomePageState extends State<HomePage>
           varieties: _varietyList,
         ),
       ),
+      const SliverToBoxAdapter(
+        child: SizedBox(height: 16),
+      ),
       if (_productList.isNotEmpty)
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
@@ -337,9 +340,7 @@ class _HomePageState extends State<HomePage>
             ),
           ),
         ),
-      const SliverToBoxAdapter(
-        child: SizedBox(height: 16),
-      ),
+
       const HomeLoadMoreFooter(),
     ];
   }

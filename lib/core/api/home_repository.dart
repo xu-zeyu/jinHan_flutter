@@ -1,6 +1,8 @@
 import '../../core/services/request.dart';
+import '../../core/utils/json_utils.dart';
 import '../../shared/models/home_models.dart';
 
+/// Repository for home page APIs. Keeps endpoint parsing out of the UI layer.
 class HomeRepository {
   HomeRepository({RequestManager? requestManager})
       : _requestManager = requestManager ?? RequestManager();
@@ -8,12 +10,14 @@ class HomeRepository {
   final RequestManager _requestManager;
 
   Future<List<HomeBannerItem>> fetchBannerList() async {
-    final root = await _get(
+    final response = await _requestManager.get<Map<String, dynamic>>(
       '/banner/list',
       queryParameters: const <String, dynamic>{'page': 1, 'size': 10},
+      decoder: JsonUtils.asMap,
     );
-    final pageData = _readMap(root['data']);
-    final records = _readList(pageData['records']);
+    final records = JsonUtils.asListOfMap(
+      response.requireData(fallbackMessage: '轮播图数据为空')['records'],
+    );
     return records
         .map(
           (item) => HomeBannerItem.fromJson(
@@ -25,8 +29,11 @@ class HomeRepository {
   }
 
   Future<List<HomeVarietyItem>> fetchHotVarietyList() async {
-    final root = await _get('/variety/hot');
-    final records = _readList(root['data']);
+    final response = await _requestManager.get<List<Map<String, dynamic>>>(
+      '/variety/hot',
+      decoder: JsonUtils.asListOfMap,
+    );
+    final records = response.requireData(fallbackMessage: '品种数据为空');
     return records
         .map(
           (item) => HomeVarietyItem.fromJson(
@@ -41,49 +48,14 @@ class HomeRepository {
     required int page,
     int size = 10,
   }) async {
-    final root = await _get(
+    final response = await _requestManager.get<Map<String, dynamic>>(
       '/product/page',
       queryParameters: <String, dynamic>{'page': page, 'size': size},
+      decoder: JsonUtils.asMap,
     );
-    return HomeProductPage.fromJson(_readMap(root['data']), _requestManager);
-  }
-
-  Future<Map<String, dynamic>> _get(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
-    final response = await _requestManager.request<dynamic>(
-      path,
-      queryParameters: queryParameters,
+    return HomeProductPage.fromJson(
+      response.requireData(fallbackMessage: '商品列表数据为空'),
+      _requestManager,
     );
-    final root = _readMap(response.data);
-    final code = root['code']?.toString();
-    if (code != null && code != '200') {
-      throw Exception(root['msg']?.toString() ?? 'Request failed: $path');
-    }
-    return root;
-  }
-
-  Map<String, dynamic> _readMap(dynamic value) {
-    if (value is Map<String, dynamic>) {
-      return value;
-    }
-
-    if (value is Map) {
-      return Map<String, dynamic>.from(value);
-    }
-
-    return <String, dynamic>{};
-  }
-
-  List<Map<String, dynamic>> _readList(dynamic value) {
-    if (value is! List) {
-      return const <Map<String, dynamic>>[];
-    }
-
-    return value
-        .whereType<Map>()
-        .map((item) => Map<String, dynamic>.from(item))
-        .toList();
   }
 }

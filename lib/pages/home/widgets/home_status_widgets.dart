@@ -31,6 +31,9 @@ class HomeStatusPanel extends StatelessWidget {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => onRetry(),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.accent,
+                ),
                 child: const Text('重新加载'),
               ),
             ],
@@ -81,9 +84,16 @@ class _SkeletonHeroSection extends StatelessWidget {
         Container(
           width: double.infinity,
           height: 180 + navBarHeight,
-          decoration: const BoxDecoration(
-            color: Color(0xFFF8D147),
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.surfaceAccent.withValues(alpha: 0.72),
+                AppColors.surfaceMuted,
+              ],
+            ),
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(18),
               bottomRight: Radius.circular(18),
             ),
@@ -105,8 +115,11 @@ class _SkeletonHeroSection extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.border.withValues(alpha: 0.72),
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -160,7 +173,7 @@ class _SkeletonProductGrid extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: AppColors.contentBackground,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(18),
           topRight: Radius.circular(18),
@@ -181,13 +194,16 @@ class _SkeletonProductGrid extends StatelessWidget {
         itemBuilder: (context, index) {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.border,
+              ),
               boxShadow: const [
                 BoxShadow(
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                  color: Color(0x14000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                  color: AppColors.shadow,
                 ),
               ],
             ),
@@ -233,7 +249,7 @@ class SkeletonBox extends StatefulWidget {
     required this.width,
     required this.height,
     this.borderRadius = const BorderRadius.all(Radius.circular(8)),
-    this.color = const Color(0xFFEFE3D7),
+    this.color = AppColors.placeholder,
   });
 
   final double width;

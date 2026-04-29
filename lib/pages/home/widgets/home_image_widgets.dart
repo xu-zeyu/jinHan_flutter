@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_colors.dart';
+
 class HomeRemoteImage extends StatelessWidget {
   const HomeRemoteImage({
     super.key,
@@ -47,7 +49,7 @@ class HomeImagePlaceholder extends StatelessWidget {
         child: Icon(
           Icons.pets_outlined,
           size: 22,
-          color: Color(0xFFB7A899),
+          color: AppColors.accent,
         ),
       ),
     );

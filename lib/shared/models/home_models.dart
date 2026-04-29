@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import '../../core/services/request.dart';
+import '../../core/utils/json_utils.dart';
 
 class HomeBannerItem {
   const HomeBannerItem({
@@ -22,11 +21,11 @@ class HomeBannerItem {
     RequestManager requestManager,
   ) {
     return HomeBannerItem(
-      id: _asInt(json['id']),
-      imageUrl: requestManager.resolveUrl(_asString(json['url'])),
-      link: _asString(json['link']),
-      title: _asString(json['title']),
-      description: _asString(json['description']),
+      id: JsonUtils.asInt(json['id']),
+      imageUrl: requestManager.resolveUrl(JsonUtils.asString(json['url'])),
+      link: JsonUtils.asString(json['link']),
+      title: JsonUtils.asString(json['title']),
+      description: JsonUtils.asString(json['description']),
     );
   }
 }
@@ -47,9 +46,9 @@ class HomeVarietyItem {
     RequestManager requestManager,
   ) {
     return HomeVarietyItem(
-      id: _asInt(json['id']),
-      name: _asString(json['name']),
-      iconUrl: requestManager.resolveUrl(_asString(json['iconUrl'])),
+      id: JsonUtils.asInt(json['id']),
+      name: JsonUtils.asString(json['name']),
+      iconUrl: requestManager.resolveUrl(JsonUtils.asString(json['iconUrl'])),
     );
   }
 }
@@ -71,22 +70,15 @@ class HomeProductPage {
     Map<String, dynamic> json,
     RequestManager requestManager,
   ) {
-    final rawRecords = json['records'];
-    final records = rawRecords is List
-        ? rawRecords
-            .map(
-              (item) => HomeProductItem.fromJson(
-                Map<String, dynamic>.from(item as Map),
-                requestManager,
-              ),
-            )
-            .toList()
-        : const <HomeProductItem>[];
+    final rawRecords = JsonUtils.asListOfMap(json['records']);
+    final records = rawRecords
+        .map((item) => HomeProductItem.fromJson(item, requestManager))
+        .toList();
 
     return HomeProductPage(
       records: records,
-      current: _asInt(json['current'], fallback: 1),
-      total: _asInt(json['total']),
+      current: JsonUtils.asInt(json['current'], fallback: 1),
+      total: JsonUtils.asInt(json['total']),
     );
   }
 }
@@ -122,15 +114,9 @@ class HomeProductItem {
     Map<String, dynamic> json,
     RequestManager requestManager,
   ) {
-    final variety = json['variety'];
-    final varietyMap = variety is Map<String, dynamic>
-        ? variety
-        : variety is Map
-            ? Map<String, dynamic>.from(variety)
-            : const <String, dynamic>{};
-
+    final varietyMap = JsonUtils.asMap(json['variety']);
     final images = _parseImageList(json['images']);
-    final mainImage = _asString(json['mainImage']);
+    final mainImage = JsonUtils.asString(json['mainImage']);
     final resolvedImage = mainImage.isNotEmpty
         ? requestManager.resolveUrl(mainImage)
         : images.isNotEmpty
@@ -138,73 +124,19 @@ class HomeProductItem {
             : '';
 
     return HomeProductItem(
-      id: _asInt(json['id']),
-      name: _asString(json['name']),
-      title: _asString(json['title']),
+      id: JsonUtils.asInt(json['id']),
+      name: JsonUtils.asString(json['name']),
+      title: JsonUtils.asString(json['title']),
       mainImage: resolvedImage,
-      price: _asDouble(json['price']),
-      originPrice: _asDouble(json['originPrice']),
-      isExcellence: _asInt(json['isExcellence']) == 1,
-      isShipFree: _asInt(json['isShipFree']) == 1,
-      varietyName: _asString(varietyMap['name']),
+      price: JsonUtils.asDouble(json['price']),
+      originPrice: JsonUtils.asDouble(json['originPrice']),
+      isExcellence: JsonUtils.asInt(json['isExcellence']) == 1,
+      isShipFree: JsonUtils.asInt(json['isShipFree']) == 1,
+      varietyName: JsonUtils.asString(varietyMap['name']),
     );
   }
 }
 
-double _asDouble(dynamic value, {double fallback = 0}) {
-  if (value is num) {
-    return value.toDouble();
-  }
-
-  if (value == null) {
-    return fallback;
-  }
-
-  return double.tryParse(value.toString()) ?? fallback;
-}
-
-int _asInt(dynamic value, {int fallback = 0}) {
-  if (value is int) {
-    return value;
-  }
-
-  if (value is num) {
-    return value.toInt();
-  }
-
-  if (value == null) {
-    return fallback;
-  }
-
-  return int.tryParse(value.toString()) ?? fallback;
-}
-
-String _asString(dynamic value) {
-  if (value == null) {
-    return '';
-  }
-
-  return value.toString().trim();
-}
-
 List<String> _parseImageList(dynamic value) {
-  if (value is List) {
-    return value.map(_asString).where((item) => item.isNotEmpty).toList();
-  }
-
-  final raw = _asString(value);
-  if (raw.isEmpty) {
-    return const <String>[];
-  }
-
-  try {
-    final decoded = jsonDecode(raw);
-    if (decoded is List) {
-      return decoded.map(_asString).where((item) => item.isNotEmpty).toList();
-    }
-  } catch (_) {
-    return <String>[raw];
-  }
-
-  return const <String>[];
+  return JsonUtils.parseStringList(value, fallbackToSingleValue: true);
 }
