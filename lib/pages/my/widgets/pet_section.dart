@@ -1,100 +1,146 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/utils/app_date_utils.dart';
+import '../../../shared/models/user_models.dart';
 import 'my_section_shell.dart';
+import 'responsive_wrap.dart';
 
+/// 登录后展示的宠物档案列表。
 class PetSection extends StatelessWidget {
-  const PetSection({super.key});
+  const PetSection({
+    super.key,
+    required this.pets,
+  });
 
-  static const List<_PetData> _pets = <_PetData>[
-    _PetData(
-      name: '奶糖',
-      type: '布偶猫',
-      age: '2岁3个月',
-      imagePath: 'assets/images/app_icon.png',
-      status: '疫苗已完成',
-      reminder: '5月8日 复查',
-      accent: Color(0xFFDA9B68),
-    ),
-    _PetData(
-      name: '元宝',
-      type: '柯基犬',
-      age: '1岁8个月',
-      imagePath: 'assets/images/app_icon.png',
-      status: '体重管理中',
-      reminder: '本周需遛狗 3 次',
-      accent: Color(0xFF769B87),
-    ),
-  ];
+  final List<UserPetModel> pets;
 
   @override
   Widget build(BuildContext context) {
     return MySectionCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const MySectionHeader(
-            title: '爱宠模块',
-            subtitle: '集中管理档案、健康提醒和日常照护',
-            trailing: '新增爱宠',
+          MySectionHeader(
+            title: '宠物档案',
+            subtitle: pets.isEmpty
+                ? '当前账号还没有同步任何爱宠资料。'
+                : '展示 `/user` 聚合接口返回的完整 `petList` 数据。',
+            trailing: pets.isEmpty ? '空档案' : '${pets.length} 只',
           ),
-          const SizedBox(height: 14),
-          const _PetHeroPanel(),
-          const SizedBox(height: 12),
-          ..._pets.map(
-            (_PetData pet) => Padding(
-              padding: EdgeInsets.only(bottom: pet == _pets.last ? 0 : 10),
-              child: _PetTile(pet: pet),
+          const SizedBox(height: AppSpacing.md - 2),
+          _PetSummaryPanel(pets: pets),
+          const SizedBox(height: AppSpacing.md - 4),
+          if (pets.isEmpty)
+            const _PetEmptyState()
+          else
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final double itemWidth = calculateMySectionItemWidth(
+                  constraints,
+                );
+
+                return Wrap(
+                  spacing: kMySectionItemSpacing,
+                  runSpacing: kMySectionItemSpacing,
+                  children: pets.map((UserPetModel pet) {
+                    return SizedBox(
+                      width: itemWidth,
+                      child: _PetTile(pet: pet),
+                    );
+                  }).toList(),
+                );
+              },
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-class _PetHeroPanel extends StatelessWidget {
-  const _PetHeroPanel();
+class _PetSummaryPanel extends StatelessWidget {
+  const _PetSummaryPanel({required this.pets});
+
+  final List<UserPetModel> pets;
 
   @override
   Widget build(BuildContext context) {
+    final int catCount =
+        pets.where((UserPetModel item) => item.petTypeCode == 'CAT').length;
+    final int dogCount =
+        pets.where((UserPetModel item) => item.petTypeCode == 'DOG').length;
+    final DateTime? latestUpdate = pets
+        .map((UserPetModel item) => item.updatedTime ?? item.createdTime)
+        .whereType<DateTime>()
+        .fold<DateTime?>(null, (DateTime? previous, DateTime next) {
+      if (previous == null || next.isAfter(previous)) {
+        return next;
+      }
+      return previous;
+    });
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.md - 2),
       decoration: BoxDecoration(
         color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+        border: Border.all(color: AppColors.border),
       ),
-      child: const Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '已绑定 2 只爱宠',
-                  style: TextStyle(
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  pets.isEmpty ? '还没有宠物资料' : '已同步 ${pets.length} 只爱宠',
+                  style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  '健康档案、生日、喂养和护理计划统一管理。',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    height: 1.4,
-                  ),
-                ),
-              ],
+              ),
+              const Icon(
+                Icons.pets_rounded,
+                color: AppColors.accent,
+                size: AppSpacing.lg,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs + 2),
+          Text(
+            pets.isEmpty
+                ? '登录后的资料页已经接入真实接口，等新增宠物后这里会直接展示。'
+                : '最近更新 ${AppDateUtils.formatDateTime(latestUpdate, pattern: 'yyyy-MM-dd HH:mm', fallback: '暂无记录')}',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1.35,
             ),
           ),
-          SizedBox(width: 8),
-          Icon(
-            Icons.pets_rounded,
-            color: AppColors.accent,
-            size: 28,
+          const SizedBox(height: AppSpacing.md - 4),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: <Widget>[
+              _PetInfoChip(
+                icon: Icons.tag_outlined,
+                label: '猫咪 $catCount 只',
+              ),
+              _PetInfoChip(
+                icon: Icons.pets_outlined,
+                label: '狗狗 $dogCount 只',
+              ),
+              if (pets.isNotEmpty)
+                _PetInfoChip(
+                  icon: Icons.note_alt_outlined,
+                  label:
+                      '有备注 ${pets.where((UserPetModel item) => item.remark.isNotEmpty).length} 只',
+                ),
+            ],
           ),
         ],
       ),
@@ -105,93 +151,83 @@ class _PetHeroPanel extends StatelessWidget {
 class _PetTile extends StatelessWidget {
   const _PetTile({required this.pet});
 
-  final _PetData pet;
+  final UserPetModel pet;
 
   @override
   Widget build(BuildContext context) {
+    final Color accent = _petAccentColor(pet.petTypeCode);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.md),
         onTap: () {},
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.md - 4),
           decoration: BoxDecoration(
-            color: pet.accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: pet.accent.withValues(alpha: 0.18)),
+            color: accent.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(AppSpacing.md),
+            border: Border.all(color: accent.withValues(alpha: 0.18)),
           ),
           child: Row(
             children: <Widget>[
               Container(
-                width: 60,
-                height: 60,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: pet.accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
+                  color: accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.asset(pet.imagePath, fit: BoxFit.cover),
+                child: _PetAvatar(
+                  imageUrl: pet.avatarUrl,
+                  iconColor: accent,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md - 4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            pet.name,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        _PetStatusTag(
-                          label: pet.status,
-                          accent: pet.accent,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
                     Text(
-                      '${pet.type}  ·  ${pet.age}',
+                      pet.displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      '${pet.displayType}  ·  ${pet.displayGender}  ·  ${pet.ageText}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
+                    const SizedBox(height: AppSpacing.sm),
+                    Wrap(
+                      spacing: AppSpacing.xs + 2,
+                      runSpacing: AppSpacing.xs + 2,
                       children: <Widget>[
-                        Icon(
-                          Icons.notifications_active_rounded,
-                          size: 14,
-                          color: pet.accent,
+                        _PetStatusTag(
+                          label: pet.birthdayText,
+                          accent: accent,
                         ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            pet.reminder,
-                            style: TextStyle(
-                              color: pet.accent,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                        _PetReminderTag(
+                          label: pet.remarkText,
+                          accent: accent,
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               const Icon(
                 Icons.chevron_right_rounded,
                 color: AppColors.textSecondary,
@@ -200,6 +236,118 @@ class _PetTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PetAvatar extends StatelessWidget {
+  const _PetAvatar({
+    required this.imageUrl,
+    required this.iconColor,
+  });
+
+  final String imageUrl;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl.isEmpty) {
+      return Icon(Icons.pets_rounded, color: iconColor, size: 24);
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppSpacing.md),
+      child: Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
+          return Icon(Icons.pets_rounded, color: iconColor, size: 24);
+        },
+      ),
+    );
+  }
+}
+
+class _PetInfoChip extends StatelessWidget {
+  const _PetInfoChip({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm + 2,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: 14, color: AppColors.accent),
+          const SizedBox(width: AppSpacing.xs + 2),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PetEmptyState extends StatelessWidget {
+  const _PetEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+      ),
+      child: const Column(
+        children: <Widget>[
+          Icon(
+            Icons.pets_outlined,
+            color: AppColors.textSecondary,
+            size: AppSpacing.xl,
+          ),
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            '暂无宠物档案',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: AppSpacing.xs),
+          Text(
+            '后续新增爱宠后，这里会按后端返回的真实数据自动展示。',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1.5,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -224,6 +372,8 @@ class _PetStatusTag extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: accent,
           fontSize: 10,
@@ -234,22 +384,62 @@ class _PetStatusTag extends StatelessWidget {
   }
 }
 
-class _PetData {
-  const _PetData({
-    required this.name,
-    required this.type,
-    required this.age,
-    required this.imagePath,
-    required this.status,
-    required this.reminder,
+class _PetReminderTag extends StatelessWidget {
+  const _PetReminderTag({
+    required this.label,
     required this.accent,
   });
 
-  final String name;
-  final String type;
-  final String age;
-  final String imagePath;
-  final String status;
-  final String reminder;
+  final String label;
   final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(
+            Icons.notifications_active_rounded,
+            size: 12,
+            color: accent,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: accent,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Color _petAccentColor(String petTypeCode) {
+  switch (petTypeCode) {
+    case 'DOG':
+      return AppColors.orderCompleted;
+    case 'BIRD':
+      return AppColors.orderReceiving;
+    case 'RABBIT':
+      return AppColors.quickActionAddress;
+    case 'OTHER':
+      return AppColors.info;
+    case 'CAT':
+    default:
+      return AppColors.quickActionCoupon;
+  }
 }

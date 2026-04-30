@@ -16,8 +16,7 @@ class ThemeSelectorSheet extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -56,9 +55,8 @@ class ThemeSelectorSheet extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.border,
+                        color:
+                            isSelected ? AppColors.primary : AppColors.border,
                         width: isSelected ? 2 : 1,
                       ),
                       color: isSelected

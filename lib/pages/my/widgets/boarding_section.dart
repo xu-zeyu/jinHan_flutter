@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
 import 'my_section_shell.dart';
+import 'responsive_wrap.dart';
 
 class BoardingSection extends StatelessWidget {
   const BoardingSection({super.key});
@@ -31,29 +32,35 @@ class BoardingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return MySectionCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const MySectionHeader(
-            title: '寄养模块',
-            subtitle: '补齐预约、房型、动态回传等关键信息',
+            title: '寄养服务',
+            subtitle: '预约档期、房型和动态回传放在一个模块里。',
             trailing: '立即预约',
           ),
           const SizedBox(height: 14),
           const _BoardingHeroCard(),
           const SizedBox(height: 12),
-          Row(
-            children: _services
-                .map(
-                  (_BoardingServiceData service) => Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: service == _services.last ? 0 : 10,
-                      ),
-                      child: _BoardingServiceTile(service: service),
-                    ),
-                  ),
-                )
-                .toList(),
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final double itemWidth = calculateMySectionItemWidth(constraints);
+
+              return Wrap(
+                spacing: kMySectionItemSpacing,
+                runSpacing: kMySectionItemSpacing,
+                children: List<Widget>.generate(_services.length, (int index) {
+                  final _BoardingServiceData service = _services[index];
+                  return SizedBox(
+                    width: itemWidth,
+                    child: _BoardingServiceTile(service: service),
+                  );
+                }),
+              );
+            },
           ),
+          const SizedBox(height: 12),
+          const _BoardingTipRow(),
         ],
       ),
     );
@@ -66,7 +73,7 @@ class _BoardingHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -77,7 +84,7 @@ class _BoardingHeroCard extends StatelessWidget {
             Color(0xFFFFFFFF),
           ],
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: const Row(
         children: <Widget>[
@@ -86,7 +93,7 @@ class _BoardingHeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  '五一假期档期紧张',
+                  '五一假期档期偏紧',
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
@@ -164,13 +171,13 @@ class _BoardingServiceTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () {},
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
             color: service.color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: service.color.withValues(alpha: 0.18)),
           ),
-          child: Column(
+          child: Row(
             children: <Widget>[
               Container(
                 width: 42,
@@ -181,30 +188,80 @@ class _BoardingServiceTile extends StatelessWidget {
                 ),
                 child: Icon(service.icon, color: service.color, size: 22),
               ),
-              const SizedBox(height: 10),
-              Text(
-                service.title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      service.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      service.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                service.subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  height: 1.3,
-                ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textSecondary,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BoardingTipRow extends StatelessWidget {
+  const _BoardingTipRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: const Row(
+        children: <Widget>[
+          Icon(
+            Icons.schedule_rounded,
+            size: 16,
+            color: AppColors.accent,
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '建议最晚 05.03 前确认五一寄养档期。',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../api/home_repository.dart';
+import '../api/user_repository.dart';
 import '../network/request_manager.dart';
 import '../storage/token_manager.dart';
 import 'theme_provider.dart';
@@ -20,12 +21,14 @@ class ProviderScope extends StatelessWidget {
     final tokenManager = TokenManager.instance;
     final requestManager = RequestManager(tokenManager: tokenManager);
     final homeRepository = HomeRepository(requestManager: requestManager);
+    final userRepository = UserRepository(requestManager: requestManager);
 
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<TokenManager>.value(value: tokenManager),
         Provider<RequestManager>.value(value: requestManager),
         Provider<HomeRepository>.value(value: homeRepository),
+        Provider<UserRepository>.value(value: userRepository),
         ChangeNotifierProvider<ThemeProvider>(
           create: (_) => ThemeProvider()..initialize(),
         ),
