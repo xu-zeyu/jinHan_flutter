@@ -61,6 +61,7 @@ class LoginProvider extends ChangeNotifier {
   /// Completes SMS login and stores the returned token into the shared manager.
   Future<void> loginWithSms({
     required String phone,
+    required String password,
     required String smsCode,
   }) async {
     if (_isSubmitting) {
@@ -73,7 +74,7 @@ class LoginProvider extends ChangeNotifier {
     try {
       final raw = await _loginRepository.loginWithSms(
         phone: phone,
-        password: "123456",
+        password: password,
         smsCode: smsCode,
       );
       await _saveToken(raw);

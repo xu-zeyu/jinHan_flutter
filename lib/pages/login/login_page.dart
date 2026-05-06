@@ -11,7 +11,7 @@ import 'login_provider.dart';
 import 'widgets/login_background_widget.dart';
 import 'widgets/login_card_widget.dart';
 
-/// 登录页面，仅承载登录相关 UI、输入校验与跳转。
+/// 登录页面，承载账户名、密码、验证码登录的状态与交互。
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -20,25 +20,27 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _accountController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _captchaController = TextEditingController();
+
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
-    _phoneController.dispose();
-    _codeController.dispose();
+    _accountController.dispose();
+    _passwordController.dispose();
+    _captchaController.dispose();
     super.dispose();
   }
 
-  String get _normalizedPhone =>
-      _phoneController.text.replaceAll(' ', '').trim();
+  String get _account => _accountController.text.replaceAll(' ', '').trim();
 
-  String get _normalizedSmsCode =>
-      _codeController.text.replaceAll(' ', '').trim();
+  String get _password => _passwordController.text.trim();
 
-  bool _isValidPhone(String value) {
-    return RegExp(r'^1\d{10}$').hasMatch(value);
-  }
+  String get _captcha => _captchaController.text.replaceAll(' ', '').trim();
+
+  bool _isValidAccount(String value) => RegExp(r'^1\d{10}$').hasMatch(value);
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
@@ -46,52 +48,55 @@ class _LoginPageState extends State<LoginPage> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// 发送登录验证码，并复用 provider 的倒计时状态。
   Future<void> _handleSendCode(LoginProvider provider) async {
-    final phone = _normalizedPhone;
-    if (!_isValidPhone(phone)) {
-      _showMessage('请输入正确的 11 位手机号');
+    if (!_isValidAccount(_account)) {
+      _showMessage('请输入正确的 11 位账户手机号');
       return;
     }
 
     try {
-      await provider.sendLoginCaptcha(phone: phone);
-      if (!mounted) {
-        return;
+      await provider.sendLoginCaptcha(phone: _account);
+      if (mounted) {
+        _showMessage('验证码已发送，请注意查收');
       }
-      _showMessage('验证码已发送，请注意查收');
     } on AppException catch (error) {
-      if (!mounted) {
-        return;
+      if (mounted) {
+        _showMessage(error.message);
       }
-      _showMessage(error.message);
     }
   }
 
+  /// 提交账户名、密码和验证码，登录成功后进入首页。
   Future<void> _handleLogin(LoginProvider provider) async {
-    final phone = _normalizedPhone;
-    final smsCode = _normalizedSmsCode;
-
-    if (!_isValidPhone(phone)) {
-      _showMessage('请输入正确的 11 位手机号');
+    if (!_isValidAccount(_account)) {
+      _showMessage('请输入正确的 11 位账户手机号');
       return;
     }
 
-    if (smsCode.isEmpty) {
-      _showMessage('请输入短信验证码');
+    if (_password.isEmpty) {
+      _showMessage('请输入密码');
+      return;
+    }
+
+    if (_captcha.isEmpty) {
+      _showMessage('请输入验证码');
       return;
     }
 
     try {
-      await provider.loginWithSms(phone: phone, smsCode: smsCode);
-      if (!mounted) {
-        return;
+      await provider.loginWithSms(
+        phone: _account,
+        password: _password,
+        smsCode: _captcha,
+      );
+      if (mounted) {
+        context.go('/');
       }
-      context.go('/');
     } on AppException catch (error) {
-      if (!mounted) {
-        return;
+      if (mounted) {
+        _showMessage(error.message);
       }
-      _showMessage(error.message);
     }
   }
 
@@ -118,16 +123,21 @@ class _LoginPageState extends State<LoginPage> {
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(AppSpacing.md),
                         child: LoginCardWidget(
-                          phoneController: _phoneController,
-                          codeController: _codeController,
+                          accountController: _accountController,
+                          passwordController: _passwordController,
+                          captchaController: _captchaController,
+                          isPasswordVisible: _isPasswordVisible,
                           countdown: provider.countdown,
                           isCountingDown: provider.isCountingDown,
                           isSendingCode: provider.isSendingCode,
                           isSubmitting: provider.isSubmitting,
+                          onTogglePasswordVisible: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
                           onSendCode: () => _handleSendCode(provider),
                           onLogin: () => _handleLogin(provider),
-                          onForgotPassword: () {},
-                          onRegister: () {},
                         ),
                       ),
                     ),

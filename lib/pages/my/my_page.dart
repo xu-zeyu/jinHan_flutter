@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/user_repository.dart';
@@ -52,10 +51,6 @@ class _MyPageState extends State<MyPage>
       backgroundColor: Colors.transparent,
       builder: (_) => const ThemeSelectorSheet(),
     );
-  }
-
-  void _goToLogin() {
-    context.go('/login');
   }
 
   @override
@@ -117,7 +112,6 @@ class _MyPageState extends State<MyPage>
                 child: MyPageBody(
                   entranceController: _entranceController,
                   onThemeTap: _showThemeSelector,
-                  onLoginTap: _goToLogin,
                 ),
               ),
             ],

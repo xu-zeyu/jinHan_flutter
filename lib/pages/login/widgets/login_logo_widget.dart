@@ -3,54 +3,55 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 
-/// 登录页品牌 Logo 区域。
+/// 登录页品牌区域。
 class LoginLogoWidget extends StatelessWidget {
   const LoginLogoWidget({super.key});
+
+  static const double _logoSize = AppSpacing.xl + AppSpacing.lg;
+  static const double _surfaceAlpha = 0.18;
+  static const double _borderAlpha = 0.72;
+  static const double _borderWidth = AppSpacing.xs / 4;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
       children: <Widget>[
         Container(
-          width: AppSpacing.xl * 2 + AppSpacing.md,
-          height: AppSpacing.xl * 2 + AppSpacing.md,
+          width: _logoSize,
+          height: _logoSize,
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                AppColors.headerGradientStart,
-                AppColors.headerGradientMid1,
-              ],
+            color: AppColors.surface.withValues(alpha: _surfaceAlpha),
+            borderRadius: BorderRadius.circular(AppSpacing.md),
+            border: Border.all(
+              color: AppColors.secondary.withValues(alpha: _borderAlpha),
+              width: _borderWidth,
             ),
-            borderRadius: BorderRadius.circular(AppSpacing.lg),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: AppSpacing.lg,
-                offset: Offset(0, AppSpacing.sm),
+          ),
+          child: Image.asset('assets/images/app_icon.png'),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'JinHan',
+                style: theme.textTheme.displaySmall?.copyWith(
+                  color: AppColors.surface,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                '金涵宠物会员中心',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
-          ),
-          child: Center(
-            child: Text(
-              'JH',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: AppColors.surface,
-                fontWeight: FontWeight.w800,
-                letterSpacing: AppSpacing.xs / 2,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(
-          'JinHan',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontSize: AppSpacing.md + AppSpacing.sm,
           ),
         ),
       ],

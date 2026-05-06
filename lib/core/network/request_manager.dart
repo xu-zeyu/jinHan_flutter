@@ -7,7 +7,7 @@ import 'app_exception.dart';
 
 /// Shared HTTP client that owns base URL, headers and error normalization.
 class RequestManager {
-  static const String defaultBaseUrl = 'http://192.168.9.144:8088';
+  static const String defaultBaseUrl = 'http://192.168.9.133:8088';
 
   static RequestManager? _instance;
 

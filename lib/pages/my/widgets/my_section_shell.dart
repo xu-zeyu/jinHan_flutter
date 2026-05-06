@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
 
+/// 我的页面模块卡片容器。
 class MySectionCard extends StatelessWidget {
   const MySectionCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(14),
+    this.padding = const EdgeInsets.all(AppSpacing.md),
   });
 
   final Widget child;
@@ -18,13 +20,13 @@ class MySectionCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppSpacing.md),
         border: Border.all(color: AppColors.border),
         boxShadow: const <BoxShadow>[
           BoxShadow(
             color: AppColors.shadow,
-            blurRadius: 16,
-            offset: Offset(0, 6),
+            blurRadius: AppSpacing.md,
+            offset: Offset(0, AppSpacing.xs),
           ),
         ],
       ),
@@ -33,6 +35,7 @@ class MySectionCard extends StatelessWidget {
   }
 }
 
+/// 我的页面模块标题栏。
 class MySectionHeader extends StatelessWidget {
   const MySectionHeader({
     super.key,
@@ -58,31 +61,30 @@ class MySectionHeader extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
-                  fontSize: 15,
+                  fontSize: AppSpacing.md,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               if (subtitle != null) ...<Widget>[
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   subtitle!,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 11,
+                    fontSize: AppSpacing.sm + AppSpacing.xs,
                     fontWeight: FontWeight.w500,
-                    height: 1.4,
                   ),
                 ),
               ],
             ],
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.sm + AppSpacing.xs),
         Text(
           trailing,
           style: const TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 12,
+            fontSize: AppSpacing.sm + AppSpacing.xs,
             fontWeight: FontWeight.w600,
           ),
         ),

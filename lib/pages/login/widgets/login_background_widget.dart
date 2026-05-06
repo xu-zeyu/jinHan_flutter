@@ -3,81 +3,63 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 
-/// 登录页背景，提供渐变与轻量装饰层次。
+/// 登录页沉浸式背景，使用品牌渐变与应用图标水印建立主题氛围。
 class LoginBackgroundWidget extends StatelessWidget {
   const LoginBackgroundWidget({super.key});
+
+  static const double _watermarkSize = AppSpacing.xl * 5;
+  static const double _watermarkOpacity = 0.08;
+  static const double _bottomBandOpacity = 0.92;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: <Color>[
-            AppColors.surface,
-            AppColors.surfaceAccent.withValues(alpha: 0.9),
+            AppColors.headerGradientEnd,
+            AppColors.headerGradientMid2,
+            AppColors.headerGradientMid1,
+            AppColors.surfaceAccent,
             AppColors.background,
-            AppColors.secondary.withValues(alpha: 0.28),
           ],
         ),
       ),
-      child: const Stack(
+      child: Stack(
         children: <Widget>[
-          _GradientOrb(
-            alignment: Alignment.topLeft,
-            size: AppSpacing.xl * 6,
-            color: AppColors.headerGradientStart,
-            opacity: 0.16,
-          ),
-          _GradientOrb(
+          Align(
             alignment: Alignment.topRight,
-            size: AppSpacing.xl * 5,
-            color: AppColors.secondary,
-            opacity: 0.18,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Opacity(
+                opacity: _watermarkOpacity,
+                child: Image.asset(
+                  'assets/images/app_icon.png',
+                  width: _watermarkSize,
+                ),
+              ),
+            ),
           ),
-          _GradientOrb(
+          Align(
             alignment: Alignment.bottomCenter,
-            size: AppSpacing.xl * 7,
-            color: AppColors.headerGradientMid1,
-            opacity: 0.12,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    AppColors.surfaceAccent.withValues(alpha: 0),
+                    AppColors.background.withValues(alpha: _bottomBandOpacity),
+                    AppColors.contentBackground,
+                  ],
+                ),
+              ),
+              child: const SizedBox.expand(),
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _GradientOrb extends StatelessWidget {
-  const _GradientOrb({
-    required this.alignment,
-    required this.size,
-    required this.color,
-    required this.opacity,
-  });
-
-  final Alignment alignment;
-  final double size;
-  final Color color;
-  final double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: alignment,
-      child: Container(
-        width: size,
-        height: size,
-        margin: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: <Color>[
-              color.withValues(alpha: opacity),
-              color.withValues(alpha: 0),
-            ],
-          ),
-        ),
       ),
     );
   }

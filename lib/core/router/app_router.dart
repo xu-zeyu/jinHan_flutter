@@ -4,7 +4,7 @@ import '../../pages/login/login_page.dart';
 import '../../pages/root_page/root_page.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: <RouteBase>[
     GoRoute(
       path: '/login',
