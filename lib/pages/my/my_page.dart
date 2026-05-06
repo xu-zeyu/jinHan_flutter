@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/user_repository.dart';
@@ -10,6 +11,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/storage/token_manager.dart';
 import '../../shared/models/user_models.dart';
 import 'providers/my_page_provider.dart';
+import 'widgets/logout_confirm_dialog_widget.dart';
 import 'widgets/my_page_body.dart';
 import 'widgets/theme_selector_sheet.dart';
 
@@ -53,6 +55,47 @@ class _MyPageState extends State<MyPage>
     );
   }
 
+  /// 触发顶部退出入口，并在确认后清理登录态后跳转登录页。
+  Future<void> _handleLogoutTap(BuildContext pageContext) async {
+    final MyPageProvider provider = pageContext.read<MyPageProvider>();
+    if (!provider.isLoggedIn) {
+      if (!mounted) {
+        return;
+      }
+      pageContext.go('/login');
+      return;
+    }
+
+    final bool? didConfirm = await showDialog<bool>(
+      context: pageContext,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return ChangeNotifierProvider<MyPageProvider>.value(
+          value: provider,
+          child: Consumer<MyPageProvider>(
+            builder: (BuildContext context, MyPageProvider value, _) {
+              return LogoutConfirmDialogWidget(
+                isSubmitting: value.isLoggingOut,
+                onConfirm: () async {
+                  await value.logout();
+                  if (dialogContext.mounted) {
+                    Navigator.of(dialogContext).pop(true);
+                  }
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (!mounted || !pageContext.mounted || didConfirm != true) {
+      return;
+    }
+
+    pageContext.go('/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -62,61 +105,66 @@ class _MyPageState extends State<MyPage>
         userRepository: context.read<UserRepository>(),
         tokenManager: context.read<TokenManager>(),
       )..initialize(),
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark.copyWith(
-          statusBarBrightness: Brightness.light,
-          statusBarIconBrightness: Brightness.dark,
-        ),
-        child: Scaffold(
-          backgroundColor: AppColors.background,
-          body: CustomScrollView(
-            physics: const _LimitedTopStretchPhysics(
-              maxTopOverscroll: _maxHeaderStretchOffset,
-              parent: AlwaysScrollableScrollPhysics(),
+      child: Builder(
+        builder: (BuildContext pageContext) {
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.dark.copyWith(
+              statusBarBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.dark,
             ),
-            slivers: <Widget>[
-              SliverAppBar(
-                pinned: true,
-                stretch: true,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                backgroundColor: AppColors.surfaceAccent,
-                surfaceTintColor: Colors.transparent,
-                expandedHeight: _expandedHeaderHeight,
-                actions: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.sm + 4),
-                    child: _NavIconButton(
-                      icon: Icons.settings_outlined,
-                      onTap: _showThemeSelector,
+            child: Scaffold(
+              backgroundColor: AppColors.background,
+              body: CustomScrollView(
+                physics: const _LimitedTopStretchPhysics(
+                  maxTopOverscroll: _maxHeaderStretchOffset,
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                slivers: <Widget>[
+                  SliverAppBar(
+                    pinned: true,
+                    stretch: true,
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    backgroundColor: AppColors.surfaceAccent,
+                    surfaceTintColor: Colors.transparent,
+                    expandedHeight: _expandedHeaderHeight,
+                    actions: <Widget>[
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(right: AppSpacing.sm + 4),
+                        child: _NavIconButton(
+                          icon: Icons.logout_rounded,
+                          onTap: () => _handleLogoutTap(pageContext),
+                        ),
+                      ),
+                    ],
+                    flexibleSpace: const FlexibleSpaceBar(
+                      centerTitle: false,
+                      collapseMode: CollapseMode.pin,
+                      expandedTitleScale: 1,
+                      titlePadding: EdgeInsetsDirectional.only(
+                        start: AppSpacing.md,
+                        end: AppSpacing.xl + AppSpacing.lg,
+                        bottom: AppSpacing.sm + 4,
+                      ),
+                      stretchModes: <StretchMode>[
+                        StretchMode.zoomBackground,
+                      ],
+                      title: _FlexibleHeaderTitle(),
+                      background: _HeaderPanel(),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: MyPageBody(
+                      entranceController: _entranceController,
+                      onThemeTap: _showThemeSelector,
                     ),
                   ),
                 ],
-                flexibleSpace: const FlexibleSpaceBar(
-                  centerTitle: false,
-                  collapseMode: CollapseMode.pin,
-                  expandedTitleScale: 1,
-                  titlePadding: EdgeInsetsDirectional.only(
-                    start: AppSpacing.md,
-                    end: AppSpacing.xl + AppSpacing.lg,
-                    bottom: AppSpacing.sm + 4,
-                  ),
-                  stretchModes: <StretchMode>[
-                    StretchMode.zoomBackground,
-                  ],
-                  title: _FlexibleHeaderTitle(),
-                  background: _HeaderPanel(),
-                ),
               ),
-              SliverToBoxAdapter(
-                child: MyPageBody(
-                  entranceController: _entranceController,
-                  onThemeTap: _showThemeSelector,
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

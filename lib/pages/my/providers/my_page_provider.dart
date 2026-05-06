@@ -20,6 +20,7 @@ class MyPageProvider extends ChangeNotifier {
 
   UserProfileModel? _profile;
   bool _isLoading = false;
+  bool _isLoggingOut = false;
   bool _initialized = false;
   bool _disposed = false;
   String _errorMessage = '';
@@ -28,6 +29,8 @@ class MyPageProvider extends ChangeNotifier {
   UserProfileModel? get profile => _profile;
 
   bool get isLoading => _isLoading;
+
+  bool get isLoggingOut => _isLoggingOut;
 
   bool get isLoggedIn => _tokenManager.isLoggedIn;
 
@@ -80,11 +83,33 @@ class MyPageProvider extends ChangeNotifier {
       _profile = null;
       _errorMessage = '我的页面数据加载失败，请稍后重试';
     } finally {
-      if (_disposed || requestVersion != _requestVersion) {
-        return;
+      if (!_disposed && requestVersion == _requestVersion) {
+        _isLoading = false;
+        notifyListeners();
       }
-      _isLoading = false;
-      notifyListeners();
+    }
+  }
+
+  /// 退出当前账号，并清理页面缓存与本地登录凭证。
+  Future<void> logout() async {
+    if (_isLoggingOut) {
+      return;
+    }
+
+    _isLoggingOut = true;
+    _requestVersion += 1;
+    _profile = null;
+    _isLoading = false;
+    _errorMessage = '';
+    notifyListeners();
+
+    try {
+      await _tokenManager.clearToken();
+    } finally {
+      if (!_disposed) {
+        _isLoggingOut = false;
+        notifyListeners();
+      }
     }
   }
 
